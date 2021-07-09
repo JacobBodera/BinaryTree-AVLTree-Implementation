@@ -1,415 +1,396 @@
-//
-//
 
-#ifndef MTE140_A2_TEST_H
-#define MTE140_A2_TEST_H
-
-#include "circular-queue.h"
-#include "dynamic-stack.h"
+#ifndef MTE140_A3_TEST_H
+#define MTE140_A3_TEST_H
 
 #define ASSERT_TRUE(T) if (!(T)) return false;
 #define ASSERT_FALSE(T) if ((T)) return false;
 
-class CircularQueueTest
+#include <algorithm>
+#include <sstream>
+#include <queue>
+
+#include "binary-search-tree.h"
+#include "avl-tree.h"
+
+typedef BinarySearchTree::DataType DataType;
+
+DataType arrayMax( DataType* array, int n )
 {
+    DataType max = array[0];
+    for( int i = 1; i < n; i++ )
+        if( array[i] > max )
+            max = array[i];
+    return max;
+}
+
+
+class BinarySearchTreeTest {
 public:
-    // new empty queue is valid
+    bool insert_nodes(BinarySearchTree &tree, DataType *in, int nin)
+    {
+        for(int i = 0; i < nin; i++) {
+            ASSERT_TRUE(tree.insert(in[i]));
+        }
+        return true;
+    }
+
+    // Traverse the tree in level-order to check if it was constructed properly
+    // Output is as follows: "val1 val2 ... valN"
+    // where vali is the value of node i, using level-order traversal
+    std::string level_order(BinarySearchTree::Node* root)
+    {
+        // If no nodes, return an empty string.
+        if (root == NULL) {
+            return "";
+        }
+
+        std::stringstream ss;
+        std::queue<BinarySearchTree::Node*> node_queue;
+        node_queue.push(root);
+        while (!node_queue.empty()) {
+            BinarySearchTree::Node* cur_node = node_queue.front();
+            node_queue.pop();
+            ss << cur_node->val << " ";
+            if (cur_node->left != NULL) {
+                node_queue.push(cur_node->left);
+            }
+            if (cur_node->right != NULL) {
+                node_queue.push(cur_node->right);
+            }
+        }
+
+        std::string level_order_str = ss.str();
+        // There is a trailing space at the end of the string; return everything
+        // before this.
+        return level_order_str.substr(0, level_order_str.size() - 1);
+    }
+
+    //  New tree is valid
     bool test1()
     {
-        unsigned int capacity = 5;
-        CircularQueue queue(capacity);
+        // We expect an empty tree at construction.
+        std::string expected_tree_level_order = "";
 
-        ASSERT_TRUE(queue.size() == 0)
-        ASSERT_TRUE(queue.empty())
-        ASSERT_TRUE(!queue.full())
+        BinarySearchTree bst;
+        ASSERT_TRUE(bst.root_ == NULL);
+        ASSERT_TRUE(bst.size_ == 0 && bst.size() == 0);
+
+        std::string tree_level_order = level_order(bst.root_);
+        // Compare the tree's representation to the expected tree.
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
         return true;
     }
 
-    // enqueue() an element on zero-element queues
+// Test a tree with one node
     bool test2()
     {
-        unsigned int capacity = 5;
-        CircularQueue queue1(capacity);
-        CircularQueue queue2(capacity);
-        ASSERT_TRUE(queue1.enqueue(100))
-        ASSERT_TRUE(queue2.enqueue(100))
+        // We expect a single root node with value "5" after everything.
+        std::string expected_tree_level_order = "5";
 
-        ASSERT_TRUE(queue1.size() == queue2.size() && queue1.size() == 1)
-        ASSERT_TRUE(queue1.items_ != nullptr)
-        ASSERT_TRUE(queue2.items_ != nullptr)
-        ASSERT_TRUE(queue1.head_ == 0 && queue1.tail_ == 1)
-        ASSERT_TRUE(queue2.head_ == 0 && queue2.tail_ == 1)
+        BinarySearchTree bst;
+        ASSERT_TRUE(bst.insert(5));
+        ASSERT_TRUE(!bst.remove(4));
+        ASSERT_TRUE(bst.exists(5));
+        ASSERT_TRUE(bst.max() == bst.min() && bst.max() == 5);
+        ASSERT_TRUE(bst.size() == 1);
+
+        std::string tree_level_order = level_order(bst.root_);
+        // Compare the tree's representation to the expected tree.
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
         return true;
     }
 
-    // peek(), enqueue(), and dequeue() work properly
+// Insert, remove, and size on linear list formation with three elements
     bool test3()
     {
-        unsigned int capacity = 5;
-        CircularQueue queue(capacity);
-        for (unsigned int i = 0; i < capacity; i++) {
-            ASSERT_TRUE(queue.enqueue(i*100))
-        }
+        // We expect a 2-node tree at the end of this function -- root node 10 and
+        // a child node with value 8.
+        std::string expected_tree_level_order = "10 8";
 
-        ASSERT_TRUE(queue.size_ == queue.size() && queue.size_ == queue.capacity_ && queue.capacity_ == 5)
-        ASSERT_TRUE(queue.head_ == 0)
-        ASSERT_TRUE(queue.tail_ == 0)
+        BinarySearchTree bst;
+        ASSERT_TRUE(bst.insert(10));
+        ASSERT_TRUE(bst.insert(8));
+        ASSERT_TRUE(bst.size() == 2);
+        ASSERT_TRUE(bst.insert(6));
+        ASSERT_TRUE(bst.size() == 3);
 
-        ASSERT_TRUE(queue.peek() == 0 && queue.peek() == queue.dequeue())
-        ASSERT_TRUE(queue.peek() == 100 && queue.peek() == queue.dequeue())
-        ASSERT_TRUE(queue.peek() == 200 && queue.peek() == queue.dequeue())
-        ASSERT_TRUE(queue.peek() == 300 && queue.peek() == queue.dequeue())
-        ASSERT_TRUE(queue.peek() == 400 && queue.peek() == queue.dequeue())
+        ASSERT_TRUE(bst.remove(6));
+        ASSERT_TRUE(bst.size() == 2);
 
+        std::string tree_level_order = level_order(bst.root_);
+        // Compare the tree's representation to the expected tree.
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
         return true;
     }
 
-    // peek() and dequeue() on one-element queue
+// Test removal of a node with one child
     bool test4()
     {
-        unsigned int capacity = 5;
-        CircularQueue queue1(capacity);
-        CircularQueue queue2(capacity);
-        ASSERT_TRUE(queue1.enqueue(100))
-        ASSERT_TRUE(queue2.enqueue(100))
-        ASSERT_TRUE(queue1.peek() == 100 && queue1.dequeue() == 100)
-        ASSERT_TRUE(queue2.peek() == 100 && queue2.dequeue() == 100)
+        std::string expected_tree = "3 2 6";
 
-        ASSERT_TRUE(queue1.size_ == queue2.size_ && queue1.size_ == 0)
-        ASSERT_TRUE(queue1.empty() && queue2.empty())
+        BinarySearchTree bst;
+        ASSERT_TRUE(bst.insert(3));
+        ASSERT_TRUE(bst.insert(7));
+        ASSERT_TRUE(bst.insert(6));
+        ASSERT_TRUE(bst.insert(2));
+
+        ASSERT_TRUE(bst.remove(7));
+        ASSERT_TRUE(!bst.exists(7));
+        ASSERT_TRUE(level_order(bst.root_).compare(expected_tree) == 0)
         return true;
     }
 
-    // enqueue() too many elements should fail
+// Insert multiple elements and remove till nothing remains
     bool test5()
     {
-        unsigned int capacity = 5;
-        CircularQueue queue(capacity);
-        // Fill up the list.
-        for (unsigned int i = 0; i < capacity; i++) {
-            ASSERT_TRUE(queue.enqueue(i))
-        }
+        std::string expected_tree = "";
 
-        // Try overfilling (they should all return false with no modifications).
-        int val_not_inserted = 100;
-        ASSERT_FALSE(queue.enqueue(val_not_inserted))
+        BinarySearchTree bst;
+        DataType in[] = {8, 3, 10, 15};
 
-        // Check size is correct.
-        ASSERT_TRUE(queue.full() && !queue.empty())
-        ASSERT_TRUE(queue.size_ == queue.capacity_ && queue.capacity_ == capacity)
-
+        ASSERT_TRUE(insert_nodes(bst, in, 4));
+        ASSERT_TRUE(!bst.remove(9));
+        ASSERT_TRUE(bst.remove(8));
+        ASSERT_TRUE(bst.max() == 15);
+        ASSERT_TRUE(bst.remove(15));
+        ASSERT_TRUE(bst.max() == 10);
+        ASSERT_TRUE(bst.min() == 3);
+        ASSERT_TRUE(bst.remove(10));
+        ASSERT_TRUE(bst.remove(3));
+        ASSERT_TRUE(bst.root_== NULL);
+        ASSERT_TRUE(level_order(bst.root_).compare(expected_tree) == 0)
         return true;
     }
 
-    // enqueue() keeps changing tail
+    // Test removal of root node when both children of root have two children
     bool test6()
     {
-        unsigned int capacity = 5;
-        CircularQueue queue(capacity);
+        std::string expected_tree1 = "6 3 10 1 9 15";
+        std::string expected_tree2 = "9 3 10 1 6 15";
 
-        for (unsigned int i = 0; i < capacity - 1; i++) {
-            ASSERT_TRUE(queue.enqueue(i))
-            ASSERT_TRUE(queue.size_ == (i + 1))
-            ASSERT_TRUE(queue.items_[queue.tail_ % capacity - 1] == i)
-        }
-        ASSERT_TRUE(queue.items_[4] == 4)
+        BinarySearchTree bst;
+        DataType in[] = {8, 3, 10, 1, 6, 9, 15};
+
+        ASSERT_TRUE(insert_nodes(bst, in, 7));
+        ASSERT_TRUE(!bst.remove(12));
+        ASSERT_TRUE(bst.remove(8));
+        ASSERT_TRUE(level_order(bst.root_).compare(expected_tree1) == 0 ||
+                    level_order(bst.root_).compare(expected_tree2) == 0)
 
         return true;
     }
 
-    // dequeue() keeps changing head
+// Test depth with many inserts & some removes.
     bool test7()
     {
-        unsigned int capacity = 5;
-        CircularQueue queue(capacity);
+        std::string expected_tree = "0 -5 10 -2 1 -4 -1";
 
-        for (unsigned int i = 0; i < capacity; i++) {
-            ASSERT_TRUE(queue.enqueue(i))
-        }
-
-        for (unsigned int i = 0; i < capacity; i++) {
-            ASSERT_TRUE(queue.items_[queue.head_] == i && queue.dequeue() == i)
-            ASSERT_TRUE(queue.size_ == (capacity - i - 1))
-        }
-
+        BinarySearchTree bst;
+        ASSERT_TRUE(bst.insert(0));
+        ASSERT_TRUE(bst.depth() == 0)
+        ASSERT_TRUE(bst.insert(10));
+        ASSERT_TRUE(bst.depth() == 1)
+        ASSERT_TRUE(bst.insert(-5));
+        ASSERT_TRUE(bst.depth() == 1)
+        ASSERT_TRUE(bst.insert(-2));
+        ASSERT_TRUE(bst.depth() == 2);
+        ASSERT_TRUE(bst.insert(-4));
+        ASSERT_TRUE(bst.depth() == 3);
+        ASSERT_TRUE(bst.insert(-1));
+        ASSERT_TRUE(bst.depth() == 3);
+        ASSERT_TRUE(bst.insert(1));
+        ASSERT_TRUE(bst.depth() == 3);
+        ASSERT_TRUE(level_order(bst.root_).compare(expected_tree) == 0)
         return true;
     }
 
-    // try to dequeue() too many elements, then enqueue() a few elements
+// Lots of inserts and removes
     bool test8()
     {
-        unsigned int capacity = 5;
-        const int num_elems = 4;
-        CircularQueue queue(capacity);
-        for (int i = 0; i < num_elems; i++) {
-            ASSERT_TRUE(queue.enqueue(i))
-        }
-        for (int i = 0; i < num_elems; i++) {
-            ASSERT_TRUE(queue.dequeue() == i)
-        }
+        // In this case, it is the expected tree before removing all nodes.
+        std::string expected_tree = "8 2 9 1 7 4 3 5 6";
 
-        ASSERT_TRUE(queue.peek() == queue.EMPTY_QUEUE && queue.dequeue() == queue.EMPTY_QUEUE)
-        ASSERT_TRUE(queue.empty() && queue.size_ == 0)
+        BinarySearchTree bst;
+        DataType in[] = {8, 2, 7, 4, 5, 3, 1, 9, 6};
+        int nin = 9;
+        ASSERT_TRUE(insert_nodes(bst, in, nin));
+        ASSERT_TRUE(level_order(bst.root_).compare(expected_tree) == 0)
+        for(int i = 0; i<nin; ++i)
+        {
+            ASSERT_TRUE(bst.remove(in[i]));
+        }
+        ASSERT_TRUE(!bst.remove(in[0]));
+        return true;
+    }
+};
 
-        int expected_value = 1234;
-        ASSERT_TRUE(queue.enqueue(expected_value))
-        ASSERT_TRUE(queue.items_[queue.head_] == expected_value)
+class AVLTreeTest {
+public:
+    bool insert_nodes(AVLTree &tree, DataType *in, int nin)
+    {
+        for(int i = 0; i < nin; i++) {
+            ASSERT_TRUE(tree.insert(in[i]));
+        }
         return true;
     }
 
-    // lots of enqueue() and dequeue(), all of them valid
-    bool test9()
+    // Traverse the tree in level-order to check if it was constructed properly
+    // Output is as follows: "val1 val2 ... valN"
+    // where vali is the value of node i, using level-order traversal
+    std::string level_order(BinarySearchTree::Node* root)
     {
-        unsigned int capacity = 5;
-        CircularQueue queue(capacity);
+        // If no nodes, return an empty string.
+        if (root == NULL) {
+            return "";
+        }
 
-        ASSERT_TRUE(queue.enqueue(33))
-        ASSERT_TRUE(queue.enqueue(44))
-        ASSERT_TRUE(queue.enqueue(22))
-        ASSERT_TRUE(queue.dequeue() == 33)
-        ASSERT_TRUE(queue.dequeue() == 44)
-        ASSERT_TRUE(queue.enqueue(88))
-        ASSERT_TRUE(queue.dequeue() == 22)
-        ASSERT_TRUE(queue.enqueue(99))
+        std::stringstream ss;
+        std::queue<BinarySearchTree::Node*> node_queue;
+        node_queue.push(root);
+        while (!node_queue.empty()) {
+            BinarySearchTree::Node* cur_node = node_queue.front();
+            node_queue.pop();
+            ss << cur_node->val << " ";
+            if (cur_node->left != NULL) {
+                node_queue.push(cur_node->left);
+            }
+            if (cur_node->right != NULL) {
+                node_queue.push(cur_node->right);
+            }
+        }
 
-        ASSERT_TRUE(queue.peek() == 88 && queue.items_[queue.head_] == 88)
-        ASSERT_TRUE(queue.items_[4] == 99)
-        ASSERT_TRUE(queue.size() == queue.size_ && queue.size_ == 2)
+        std::string level_order_str = ss.str();
+        // There is a trailing space at the end of the string; return everything
+        // before this.
+        return level_order_str.substr(0, level_order_str.size() - 1);
+    }
 
+    //  Test single left rotation
+    bool test1()
+    {
+        std::string expected_tree_level_order = "2 1 3";
+
+        AVLTree avl;
+        ASSERT_TRUE(avl.insert(1));
+        ASSERT_TRUE(avl.insert(2));
+        ASSERT_TRUE(avl.insert(3));
+        std::string tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+        ASSERT_TRUE(avl.insert(7));
+        ASSERT_TRUE(avl.insert(11));
+        expected_tree_level_order = "2 1 7 3 11";
+        tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
         return true;
     }
 
-    // lots of enqueue() and dequeue(), some of them invalid
-    bool test10()
+// Test single right rotation
+    bool test2()
     {
-        unsigned int capacity = 5;
-        CircularQueue queue(capacity);
+        std::string expected_tree_level_order = "4 1 7";
 
-        ASSERT_TRUE(queue.dequeue() == queue.EMPTY_QUEUE && queue.peek() == queue.EMPTY_QUEUE)
-        ASSERT_TRUE(queue.enqueue(33))
-        ASSERT_TRUE(queue.enqueue(44))
-        ASSERT_TRUE(queue.enqueue(22))
-        ASSERT_TRUE(queue.enqueue(11))
-        ASSERT_TRUE(queue.dequeue() == 33)
-        ASSERT_TRUE(queue.dequeue() == 44)
-        ASSERT_TRUE(queue.dequeue() == 22)
-        ASSERT_TRUE(queue.enqueue(88))
-        ASSERT_TRUE(queue.dequeue() == 11)
-        ASSERT_TRUE(queue.dequeue() == 88)
-        ASSERT_TRUE(queue.dequeue() == queue.EMPTY_QUEUE && queue.peek() == queue.EMPTY_QUEUE)
-        ASSERT_TRUE(queue.enqueue(99))
+        AVLTree avl;
+        ASSERT_TRUE(avl.insert(7));
+        ASSERT_TRUE(avl.insert(4));
+        ASSERT_TRUE(avl.insert(1));
+        std::string tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+        ASSERT_TRUE(avl.insert(6));
+        ASSERT_TRUE(avl.insert(5));
+        expected_tree_level_order = "4 1 6 5 7";
+        tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+        return true;
+    }
 
-        ASSERT_TRUE(queue.peek() == queue.items_[queue.head_])
-        ASSERT_TRUE(queue.items_[queue.head_] == queue.items_[queue.tail_ - 1])
-        ASSERT_TRUE(queue.items_[queue.tail_ - 1] == 99)
+// Test double left-right rotation
+    bool test3()
+    {
+        std::string expected_tree_level_order = "3 1 8";
+
+        AVLTree avl;
+        ASSERT_TRUE(avl.insert(8));
+        ASSERT_TRUE(avl.insert(1));
+        ASSERT_TRUE(avl.insert(3));
+        std::string tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+        ASSERT_TRUE(avl.insert(5));
+        ASSERT_TRUE(avl.insert(6));
+        expected_tree_level_order = "3 1 6 5 8";
+        tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+        return true;
+    }
+
+    //  Test double right-left rotation
+    bool test4()
+    {
+        std::string expected_tree_level_order = "4 1 7";
+
+        AVLTree avl;
+        ASSERT_TRUE(avl.insert(1));
+        ASSERT_TRUE(avl.insert(7));
+        ASSERT_TRUE(avl.insert(4));
+        std::string tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+        ASSERT_TRUE(avl.insert(11));
+        ASSERT_TRUE(avl.insert(9));
+        expected_tree_level_order = "4 1 9 7 11";
+        tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+        return true;
+    }
+
+    //  Test multiple rotations on insert
+    bool test5()
+    {
+        std::string expected_tree_level_order = "40 15 82 11 23 69 87 21 26 42";
+
+        AVLTree avl;
+        DataType in[] = {11, 15, 26, 87, 40, 82, 69, 21, 23, 42};
+        ASSERT_TRUE(insert_nodes(avl, in, 10));
+
+        std::string tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+        return true;
+    }
+
+    // Test removal of root node when both children of root have two children
+    bool test6()
+    {
+        std::string expected_tree_level_order = "23 15 40 11 21 26 42";
+
+        AVLTree avl;
+        DataType in[] = {11, 15, 26, 87, 40, 82, 69, 21, 23, 42};
+        ASSERT_TRUE(insert_nodes(avl, in, 10));
+
+        ASSERT_TRUE(avl.remove(87));
+        ASSERT_TRUE(avl.remove(82));
+        ASSERT_TRUE(avl.remove(69));
+        std::string tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+
+        ASSERT_TRUE(avl.remove(11));
+        ASSERT_TRUE(avl.remove(15));
+        ASSERT_TRUE(avl.remove(21));
+        expected_tree_level_order = "40 23 42 26";
+        tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+
+        ASSERT_TRUE(avl.remove(42));
+        expected_tree_level_order = "26 23 40";
+        tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
+
+        ASSERT_TRUE(avl.remove(26));
+        ASSERT_TRUE(avl.remove(23));
+        ASSERT_TRUE(avl.remove(40));
+        expected_tree_level_order = "";
+        tree_level_order = level_order(avl.getRootNode());
+        ASSERT_TRUE(tree_level_order.compare(expected_tree_level_order) == 0)
 
         return true;
     }
 };
 
-class DynamicStackTest
-{
-public:
-    // new empty stack is valid
-    bool test1()
-    {
-        unsigned int capacity = 5;
-        DynamicStack stack(capacity);
-
-        ASSERT_TRUE(stack.size() == 0)
-        ASSERT_TRUE(stack.empty())
-        return true;
-    }
-
-    // push() an element on zero-element stacks
-    bool test2()
-    {
-        unsigned int capacity = 5;
-        DynamicStack stack1(capacity);
-        DynamicStack stack2(capacity);
-        stack1.push(100);
-        stack2.push(100);
-
-        ASSERT_TRUE(stack1.size() == stack2.size() && stack1.size() == 1)
-        ASSERT_TRUE(stack1.items_ != nullptr)
-        ASSERT_TRUE(stack1.items_ != nullptr)
-        ASSERT_TRUE(stack1.peek() == stack2.peek() && stack1.peek() == 100)
-        return true;
-    }
-
-    // peek(), push(), and pop() work properly
-    bool test3()
-    {
-        unsigned int capacity = 5;
-        DynamicStack stack(capacity);
-        for (unsigned int i = 0; i < capacity; i++) {
-            stack.push(i*100);
-        }
-
-        ASSERT_TRUE(stack.size_ == stack.size() && stack.size_ == stack.capacity_ && stack.capacity_ == stack.init_capacity_ && stack.init_capacity_ == 5)
-
-        ASSERT_TRUE(stack.peek() == 400 && stack.peek() == stack.pop())
-        ASSERT_TRUE(stack.peek() == 300 && stack.peek() == stack.pop())
-        ASSERT_TRUE(stack.peek() == 200 && stack.peek() == stack.pop())
-        ASSERT_TRUE(stack.peek() == 100 && stack.peek() == stack.pop())
-        ASSERT_TRUE(stack.peek() == 0 && stack.peek() == stack.pop())
-        ASSERT_TRUE(stack.init_capacity_ == 5 && stack.capacity_ == 5 && stack.empty() && stack.size_ == 0)
-
-        return true;
-    }
-
-    // peek() and pop() on one-element stack
-    bool test4()
-    {
-        unsigned int capacity = 5;
-        DynamicStack stack1(capacity);
-        DynamicStack stack2(capacity);
-        stack1.push(100);
-        stack2.push(100);
-        ASSERT_TRUE(stack1.init_capacity_ == 5 && stack1.capacity_ == 5 && stack1.size_ == 1)
-        ASSERT_TRUE(stack2.init_capacity_ == 5 && stack2.capacity_ == 5 && stack2.size_ == 1)
-        ASSERT_TRUE(stack1.peek() == 100 && stack1.pop() == 100)
-        ASSERT_TRUE(stack2.peek() == 100 && stack2.pop() == 100)
-        ASSERT_TRUE(stack1.init_capacity_ == 5 && stack1.capacity_ == 5 && stack1.empty() && stack1.size_ == 0)
-        ASSERT_TRUE(stack2.init_capacity_ == 5 && stack2.capacity_ == 5 && stack2.empty() && stack2.size_ == 0)
-
-        return true;
-    }
-
-    // push() too many elements should increase capacity
-    bool test5()
-    {
-        unsigned int capacity = 3;
-        DynamicStack stack(capacity);
-        ASSERT_TRUE(stack.init_capacity_ == 3 && stack.capacity_ == 3 && stack.empty() && stack.size_ == 0)
-        // Fill up the list.
-        for (unsigned int i = 0; i < capacity; i++) {
-            stack.push(i*100);
-        }
-
-        int val_not_inserted = 300;
-        stack.push(val_not_inserted);
-
-        ASSERT_TRUE(stack.init_capacity_ == 3 && stack.capacity_ == 6 && stack.size_ == 4)
-
-        return true;
-    }
-
-    // push() keeps changing size and capacity
-    bool test6()
-    {
-        unsigned int capacity = 3;
-        DynamicStack stack(capacity);
-
-        for (unsigned int i = 0; i < 3; i++) {
-            stack.push(i);
-        }
-        ASSERT_TRUE(stack.init_capacity_ == 3 && stack.capacity_ == 3 && stack.size_ == 3)
-
-        for (unsigned int i = 3; i < 6; i++) {
-            stack.push(i);
-        }
-        ASSERT_TRUE(stack.init_capacity_ == 3 && stack.capacity_ == 6 && stack.size_ == 6)
-
-        for (unsigned int i = 6; i < 9; i++) {
-            stack.push(i);
-        }
-        ASSERT_TRUE(stack.init_capacity_ == 3 && stack.capacity_ == 12 && stack.size_ == 9)
-
-        return true;
-    }
-
-    // pop() keeps changing size and capacity
-    bool test7()
-    {
-        unsigned int capacity = 3;
-        DynamicStack stack(capacity);
-
-        for (unsigned int i = 0; i < 10; i++) {
-            stack.push(i);
-        }
-        ASSERT_TRUE(stack.init_capacity_ == 3 && stack.capacity_ == 12 && stack.size_ == 10)
-
-        for (unsigned int i = 0; i < 7; i++) {
-            stack.pop();
-        }
-        ASSERT_TRUE(stack.init_capacity_ == 3 && stack.capacity_ == 6 && stack.size_ == 3)
-
-        stack.pop();
-        stack.pop();
-        ASSERT_TRUE(stack.init_capacity_ == 3 && stack.capacity_ == 3 && stack.size_ == 1)
-
-        return true;
-    }
-
-    // try to pop() too many elements, then push() a few elements
-    bool test8()
-    {
-        unsigned int capacity = 5;
-        const int num_elems = 4;
-        DynamicStack stack(capacity);
-        for (int i = 0; i < num_elems; i++) {
-            stack.push(i);
-        }
-        for (int i = num_elems; i > 0; i--) {
-            ASSERT_TRUE(stack.pop() == i - 1)
-        }
-
-        ASSERT_TRUE(stack.peek() == stack.EMPTY_STACK && stack.pop() == stack.EMPTY_STACK)
-        ASSERT_TRUE(stack.empty() && stack.size_ == 0)
-
-        int expected_value = 1234;
-        stack.push(expected_value);
-        ASSERT_TRUE(stack.items_[0] == expected_value)
-        return true;
-    }
-
-    // lots of push() and pop(), all of them valid
-    bool test9()
-    {
-        unsigned int capacity = 5;
-        DynamicStack stack(capacity);
-
-        stack.push(33);
-        stack.push(44);
-        stack.push(22);
-        ASSERT_TRUE(stack.pop() == 22)
-        ASSERT_TRUE(stack.pop() == 44)
-        stack.push(88);
-        ASSERT_TRUE(stack.pop() == 88)
-        stack.push(99);
-
-        ASSERT_TRUE(stack.peek() == 99 && stack.items_[1] == 99)
-        ASSERT_TRUE(stack.items_[0] == 33)
-        ASSERT_TRUE(stack.size() == stack.size_ && stack.size_ == 2)
-
-        return true;
-    }
-
-    // lots of push() and pop(), some of them invalid
-    bool test10()
-    {
-        unsigned int capacity = 5;
-        DynamicStack stack(capacity);
-
-        ASSERT_TRUE(stack.pop() == stack.EMPTY_STACK && stack.peek() == stack.EMPTY_STACK)
-        stack.push(33);
-        stack.push(44);
-        stack.push(22);
-        stack.push(11);
-        ASSERT_TRUE(stack.pop() == 11)
-        ASSERT_TRUE(stack.pop() == 22)
-        ASSERT_TRUE(stack.pop() == 44)
-        stack.push(88);
-        ASSERT_TRUE(stack.pop() == 88)
-        ASSERT_TRUE(stack.pop() == 33)
-        ASSERT_TRUE(stack.pop() == stack.EMPTY_STACK && stack.peek() == stack.EMPTY_STACK)
-        stack.push(99);
-
-        ASSERT_TRUE(stack.peek() == stack.items_[0] && stack.items_[0] == 99)
-
-        return true;
-    }
-};
-
-#endif //MTE140_A2_TEST_H
+#endif //MTE140_A3_TEST_H
