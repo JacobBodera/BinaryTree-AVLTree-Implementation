@@ -9,7 +9,7 @@ using namespace std;
 
 BinarySearchTree::Node::Node(DataType newval) // good
 {
-    val = NULL;
+    val = newval;
     left = NULL;
     right = NULL;
 }
@@ -25,7 +25,7 @@ BinarySearchTree::BinarySearchTree() // good
     size_ = 0;
 }
 
-BinarySearchTree::~BinarySearchTree() // good
+BinarySearchTree::~BinarySearchTree()
 {
 
 }
@@ -78,22 +78,15 @@ bool BinarySearchTree::exists(DataType val) const
 
     Node* current = root_;
 
-    for (int i = 0; i <= depth(); i++)
-    {
+    while (current) {
         if (val == current->val)
             return true;
         else if (val < current->val)
-        {
-            if (current->left == NULL)
-                return false;
             current = current->left;
-        }
-        else {
-            if (current->right == NULL)
-                return false;
+        else
             current = current->right;
-        }
     }
+    return false;
 }
 
 Node* BinarySearchTree::getRootNode() // good
@@ -109,29 +102,112 @@ Node** BinarySearchTree::getRootNodeAddress() // good
 bool BinarySearchTree::insert(DataType val)
 {
     if (root_ = NULL) {
-        root_->val = val;
+        Node* newNode = new Node(val);
+        root_ = newNode;
         return true;
     }
 
     Node* current = root_;
+    Node* parent = root_;
+    bool isLeft = true;
 
     while (current) {
         if (val == current->val)
             return false;
-        else if (val < current->val)
+        else if (val < current->val) {
+            parent = current;
             current = current->left;
-        else
+            isLeft = true;
+        }
+        else {
+            parent = current;
             current = current->right;
+            isLeft = false;
+        }
     }
-    current->val = val;
+    Node* newNode = new Node(val);
+    if (isLeft)
+        parent->left = newNode;
+    else
+        parent->left = newNode;
+
     return true;
 }
 
 Node* findPredecessor(Node* ptr) {
-    
+    Node* pred = ptr;
+    Node* parentOfPred = ptr;
+    Node* current = ptr->left;
+
+    while (current) {
+        parentOfPred = pred;
+        pred = current;
+        current = current->right;
+    }
 }
 
 bool BinarySearchTree::remove(DataType val)
 {
-    
+    Node* current = root_;
+    Node* parent = root_;
+    bool isLeft = false;
+
+    if (!current)
+        return false;
+
+    // finding the node to be removed
+    while (current && current->val != val) {
+        parent = current;
+
+        if (val < current->val) {
+            current = current->left;
+            isLeft = true;
+        }
+        else {
+            current = current->right;
+            isLeft = false;
+        }
+    }
+    // if the node is not found
+    if (!current)
+        return false;
+    // if the node is a leaf node
+    if (current->left == NULL && current->right == NULL) {
+        if (current = root_) {
+            root_ = NULL;
+        }
+        else {
+            if (isLeft)
+                parent->left = NULL;
+            else
+                parent->right = NULL;
+        }
+        return true;
+    }
+    // doesn't have right child but has left
+    else if (current->right == NULL) {
+        if (current = root_)
+            root_ = current->left;
+        else {
+            if (isLeft)
+                parent->left = current->left;
+            else
+                parent->right = current->left;
+        }
+    }
+    // doesn't have left child but has right
+    else if (current->left == NULL){
+        if (current = root_)
+            root_ = current->right;
+        else {
+            if (isLeft)
+                parent->left = current->right;
+            else
+                parent->right = current->right;
+        }
+    }
+
+    else {
+
+    }
 }
