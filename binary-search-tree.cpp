@@ -66,9 +66,15 @@ unsigned int BinarySearchTree::depth() const
 
 }
 
-void BinarySearchTree::print() const
+void BinarySearchTree::print(Node* node) const
 {
-    
+    if (node->left != NULL)
+        print(node->left);
+
+    std::cout << node->val << " ";
+
+    if (node->right != NULL)
+        print(node->right);
 }
 
 bool BinarySearchTree::exists(DataType val) const
@@ -130,7 +136,7 @@ bool BinarySearchTree::insert(DataType val)
     if (isLeft)
         parent->left = newNode;
     else
-        parent->left = newNode;
+        parent->right = newNode;
 
     ++size_;
     return true;

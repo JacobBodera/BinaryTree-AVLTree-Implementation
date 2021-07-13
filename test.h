@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <sstream>
 #include <queue>
+#include <iostream>
 
 #include "binary-search-tree.h"
 #include "avl-tree.h"
@@ -130,10 +131,21 @@ public:
 
         BinarySearchTree bst;
         ASSERT_TRUE(bst.insert(3));
+        std::cout << std:: endl;
+        bst.print(bst.getRootNode());
+        std::cout << std:: endl;
         ASSERT_TRUE(bst.insert(7));
+        std::cout << std:: endl;
+        bst.print(bst.getRootNode());
+        std::cout << std:: endl;
         ASSERT_TRUE(bst.insert(6));
+        std::cout << std:: endl;
+        bst.print(bst.getRootNode());
+        std::cout << std:: endl;
         ASSERT_TRUE(bst.insert(2));
-
+        std::cout << std:: endl;
+        bst.print(bst.getRootNode());
+        std::cout << std:: endl;
         ASSERT_TRUE(bst.remove(7));
         ASSERT_TRUE(!bst.exists(7));
         ASSERT_TRUE(level_order(bst.root_).compare(expected_tree) == 0)

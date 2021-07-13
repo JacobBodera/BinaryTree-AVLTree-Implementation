@@ -53,7 +53,7 @@ public:
     unsigned int depth() const;
     // You can print the tree in whatever order you prefer. However, methods such
     // as in-order or level-order traversal could be the most useful for debugging.
-    void print() const;
+    void print(Node* node) const;
     // Returns true if a node with the value val exists in the tree; otherwise,
     // it returns false.
     bool exists(DataType val) const;
