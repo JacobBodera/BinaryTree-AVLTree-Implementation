@@ -63,7 +63,7 @@ DataType BinarySearchTree::min() const // good
 
 unsigned int BinarySearchTree::depth() const
 {
-    
+
 }
 
 void BinarySearchTree::print() const
@@ -101,9 +101,10 @@ Node** BinarySearchTree::getRootNodeAddress() // good
 
 bool BinarySearchTree::insert(DataType val)
 {
-    if (root_ = NULL) {
+    if (root_ == NULL) {
         Node* newNode = new Node(val);
         root_ = newNode;
+        ++size_;
         return true;
     }
 
@@ -131,6 +132,7 @@ bool BinarySearchTree::insert(DataType val)
     else
         parent->left = newNode;
 
+    ++size_;
     return true;
 }
 
@@ -144,6 +146,14 @@ Node* findPredecessor(Node* ptr) {
         pred = current;
         current = current->right;
     }
+
+    if (pred != ptr->left) {
+        parentOfPred->right = pred->left;
+        pred->left = ptr->left;
+    }
+
+    pred->right = ptr->right;
+    return pred;
 }
 
 bool BinarySearchTree::remove(DataType val)
@@ -173,7 +183,7 @@ bool BinarySearchTree::remove(DataType val)
         return false;
     // if the node is a leaf node
     if (current->left == NULL && current->right == NULL) {
-        if (current = root_) {
+        if (current == root_) {
             root_ = NULL;
         }
         else {
@@ -182,11 +192,12 @@ bool BinarySearchTree::remove(DataType val)
             else
                 parent->right = NULL;
         }
+        --size_;
         return true;
     }
     // doesn't have right child but has left
     else if (current->right == NULL) {
-        if (current = root_)
+        if (current == root_)
             root_ = current->left;
         else {
             if (isLeft)
@@ -194,10 +205,12 @@ bool BinarySearchTree::remove(DataType val)
             else
                 parent->right = current->left;
         }
+        --size_;
+        return true;
     }
     // doesn't have left child but has right
     else if (current->left == NULL){
-        if (current = root_)
+        if (current == root_)
             root_ = current->right;
         else {
             if (isLeft)
@@ -205,9 +218,20 @@ bool BinarySearchTree::remove(DataType val)
             else
                 parent->right = current->right;
         }
+        --size_;
+        return true;
     }
 
     else {
+        Node* predecessor = findPredecessor(current);
 
+        if (current == root_)
+            root_ = predecessor;
+        else if (isLeft)
+            parent->left = predecessor;
+        else
+            parent->right = predecessor;
     }
+    --size_;
+    return true;
 }
