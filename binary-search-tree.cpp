@@ -63,7 +63,31 @@ DataType BinarySearchTree::min() const // good
 
 unsigned int BinarySearchTree::depth() const
 {
+    if (root_->left == NULL && root_->right == NULL)
+        return 0;
 
+    queue<Node*> que;
+    int depth = -1;
+
+    que.push(root_);
+
+    while (true) {
+        int count = que.size();
+
+        if (count == 0)
+            return depth;
+        depth++;
+
+        while (count > 0) {
+            Node* temp = que.front();
+            que.pop();
+            if (temp->left)
+                que.push(temp->left);
+            if (temp->right)
+                que.push(temp->right);
+            --count;
+        }
+    }
 }
 
 void BinarySearchTree::print(Node* node) const
