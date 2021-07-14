@@ -27,7 +27,7 @@ BinarySearchTree::BinarySearchTree() // good
 
 BinarySearchTree::~BinarySearchTree()
 {
-
+    recursiveDelete(root_);
 }
 
 unsigned int BinarySearchTree::size() const // good
@@ -264,4 +264,14 @@ bool BinarySearchTree::remove(DataType val)
     }
     --size_;
     return true;
+}
+
+void BinarySearchTree::recursiveDelete(Node *node) {
+    if (node != NULL) {
+        if (node->left != NULL)
+            recursiveDelete(node->left);
+        if (node->right != NULL)
+            recursiveDelete(node->right);
+        delete node;
+    }
 }
