@@ -16,7 +16,21 @@ BinarySearchTree::Node::Node(DataType newval) // good
 
 int BinarySearchTree::getNodeDepth(Node* n) const
 {
-    
+    int count = 0;
+
+    if (n == root_)
+        return count;
+
+    Node* current = root_;
+
+    while (current && current != n) {
+        if (current->val < n->val)
+            current = current->left;
+        else
+            current = current->right;
+        ++count;
+    }
+    return count;
 }
 
 BinarySearchTree::BinarySearchTree() // good

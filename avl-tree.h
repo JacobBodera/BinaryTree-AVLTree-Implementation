@@ -22,6 +22,7 @@ public:
     bool singleRightRotation(Node *parentNode, bool isLeftChild);
     bool leftRightRotation(Node *parentNode, bool isLeftChild);
     bool rightLeftRotation(Node *parentNode, bool isLeftChild);
+    int balanceFactor(Node *node);
 
 };
 
