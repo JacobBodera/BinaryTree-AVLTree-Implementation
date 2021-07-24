@@ -11,6 +11,10 @@ typedef BinarySearchTree::Node Node;
 // check height of the node
 int AVLTree::depthBelow(Node *n)
 {
+    /*
+    if (n == NULL)
+        return 0;
+
     if (n->left == NULL && n->right == NULL)
         return 1;
 
@@ -26,9 +30,22 @@ int AVLTree::depthBelow(Node *n)
         return leftSub + 1;
     else
         return rightSub + 1;
+        */
+
+    if (n == NULL)
+        return 0;
+    else {
+        int leftDepth = depthBelow(n->left);
+        int rightDepth = depthBelow(n->right);
+
+        if (leftDepth > rightDepth)
+            return (leftDepth + 1);
+        else
+            return (rightDepth + 1);
+    }
 }
 
-int AVLTree::balanceFactor(Node *node) {
+int AVLTree::balanceFactor(Node *node) { // good
     if (node == NULL)
         return 0;
 
@@ -37,9 +54,9 @@ int AVLTree::balanceFactor(Node *node) {
 
 bool AVLTree::singleLeftRotation(Node *parentNode, bool isLeftChild)
 {
-        Node* root = BinarySearchTree::getRootNode();
+    Node* root = BinarySearchTree::getRootNode();
     if (parentNode != NULL)
-        Node* root = parentNode->right;
+        root = parentNode->right;
     Node* x = root->right;
     Node* treeX = x->left;
 
@@ -58,7 +75,7 @@ bool AVLTree::singleRightRotation(Node *parentNode, bool isLeftChild)
 {
     Node* root = BinarySearchTree::getRootNode();
     if (parentNode != NULL)
-        Node* root = parentNode->left;
+        root = parentNode->left;
     Node* x = root->left;
     Node* treeX = x->right;
 
@@ -95,7 +112,7 @@ bool AVLTree::rightLeftRotation(Node *parentNode, bool isLeftChild)
 
 std::stack<BinarySearchTree::Node*> *AVLTree::pathToNodeStack(DataType val)
 {
-    stack<Node *> *stk;
+    stack<Node*> *stk = new stack<Node*> ;
 
     Node* current = getRootNode();
 
@@ -109,6 +126,7 @@ std::stack<BinarySearchTree::Node*> *AVLTree::pathToNodeStack(DataType val)
              current = current->right;
          }
     }
+
     return stk;
 }
 
@@ -138,16 +156,16 @@ bool AVLTree::updateNodeBalance(std::stack<BinarySearchTree::Node*> *pathToNode,
         }
 
         // SINGLE LEFT
-        if (balanceFactor(current) > 1 && balanceFactor(current->left) > 0)
+        if (balanceFactor(current) < -1 && balanceFactor(current->right) < 0)
             singleLeftRotation(parent, isLeft);
         // SINGLE RIGHT
-        if (balanceFactor(current) < -1 && balanceFactor(current->left) < 0)
+        if (balanceFactor(current) > 1 && balanceFactor(current->left) > 0)
             singleRightRotation(parent, isLeft);
         // LEFT RIGHT
         if (balanceFactor(current) > 1 && balanceFactor(current->left) < 0)
             leftRightRotation(parent, isLeft);
         // RIGHT LEFT
-        if (balanceFactor(current) < -1 && balanceFactor(current->left) > 0)
+        if (balanceFactor(current) < -1 && balanceFactor(current->right) > 0)
             rightLeftRotation(parent, isLeft);
     }
     return true;
@@ -157,16 +175,12 @@ bool AVLTree::insert(DataType val)
 {
     BinarySearchTree::insert(val);
 
-    updateNodeBalance(pathToNodeStack(val), val);
-
-    return true;
+    return updateNodeBalance(pathToNodeStack(val), val);
 }
 
 bool AVLTree::remove(DataType val)
 {
     BinarySearchTree::remove(val);
 
-    updateNodeBalance(pathToNodeStack(val), val);
-
-    return true;
+    return updateNodeBalance(pathToNodeStack(val), val);
 }
