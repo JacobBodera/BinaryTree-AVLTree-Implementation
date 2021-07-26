@@ -216,10 +216,10 @@ bool AVLTree::updateNodeBalance(std::stack<BinarySearchTree::Node*> *pathToNode,
         }
 
         // SINGLE LEFT
-        if (balanceFactor(current) < -1 && balanceFactor(current->right) < 0)
+        if (balanceFactor(current) < -1 && balanceFactor(current->right) <= 0)
             singleLeftRotation(parent, isLeft);
         // SINGLE RIGHT
-        if (balanceFactor(current) > 1 && balanceFactor(current->left) > 0)
+        if (balanceFactor(current) > 1 && balanceFactor(current->left) >= 0)
             singleRightRotation(parent, isLeft);
         // LEFT RIGHT
         if (balanceFactor(current) > 1 && balanceFactor(current->left) < 0)
