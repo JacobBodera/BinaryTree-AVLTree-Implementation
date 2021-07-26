@@ -85,8 +85,8 @@ bool AVLTree::singleRightRotation(Node *parentNode, bool isLeftChild)
     Node* x = root->left;
     Node* treeX = x->right;
 
-    root->left = treeX;
     x->right = root;
+    root->left = treeX;
 
     if (parentNode != NULL) {
         if (isLeftChild)
@@ -94,26 +94,81 @@ bool AVLTree::singleRightRotation(Node *parentNode, bool isLeftChild)
         else
             parentNode->right = x;
     }
+    else{
+        replaceRoot(x);
+    }
+
     return true;
 }
 
 bool AVLTree::leftRightRotation(Node *parentNode, bool isLeftChild)
 {
-    bool temp = isLeftChild;
-    isLeftChild = true;
-    //singleLeftRotation(parentNode->left, isLeftChild);
-    isLeftChild = temp;
-    //singleRightRotation(parentNode, isLeftChild);
+    Node* root;
+
+    if (parentNode == NULL)
+        root = getRootNode();
+    else
+    if (isLeftChild)
+        root = parentNode->left;
+    else
+        root = parentNode->right;
+
+    Node* a = root->left;
+    Node* b = a->right;
+    Node* rightB = b->right;
+    Node* leftB = b->left;
+
+    b->left = a;
+    a->right = leftB;
+    b->right = root;
+    root->left = rightB;
+
+    if (parentNode != NULL) {
+        if (isLeftChild)
+            parentNode->left = b;
+        else
+            parentNode->right = b;
+    }
+    else{
+        replaceRoot(b);
+    }
+
+    return true;
 }
 
 bool AVLTree::rightLeftRotation(Node *parentNode, bool isLeftChild)
 {
-    bool temp = isLeftChild;
-    isLeftChild = false;
-    //singleRightRotation(parentNode->right, isLeftChild);
-    isLeftChild = temp;
-    //singleLeftRotation(parentNode, isLeftChild);
-    
+    Node* root;
+
+    if (parentNode == NULL)
+        root = getRootNode();
+    else
+    if (isLeftChild)
+        root = parentNode->left;
+    else
+        root = parentNode->right;
+
+    Node* a = root->right;
+    Node* b = a->left;
+    Node* rightB = b->right;
+    Node* leftB = b->left;
+
+    b->right = a;
+    a->left = rightB;
+    b->left = root;
+    root->right = leftB;
+
+    if (parentNode != NULL) {
+        if (isLeftChild)
+            parentNode->left = b;
+        else
+            parentNode->right = b;
+    }
+    else{
+        replaceRoot(b);
+    }
+
+    return true;
 }
 
 std::stack<BinarySearchTree::Node*> *AVLTree::pathToNodeStack(DataType val)
@@ -164,7 +219,6 @@ bool AVLTree::updateNodeBalance(std::stack<BinarySearchTree::Node*> *pathToNode,
         if (balanceFactor(current) < -1 && balanceFactor(current->right) < 0)
             singleLeftRotation(parent, isLeft);
         // SINGLE RIGHT
-        /*
         if (balanceFactor(current) > 1 && balanceFactor(current->left) > 0)
             singleRightRotation(parent, isLeft);
         // LEFT RIGHT
@@ -173,7 +227,6 @@ bool AVLTree::updateNodeBalance(std::stack<BinarySearchTree::Node*> *pathToNode,
         // RIGHT LEFT
         if (balanceFactor(current) < -1 && balanceFactor(current->right) > 0)
             rightLeftRotation(parent, isLeft);
-            */
     }
     delete pathToNode;
     return true;
