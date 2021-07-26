@@ -72,6 +72,8 @@ public:
     void updateNodeBalance(Node* n);
 
     void recursiveDelete(Node* node);
+
+    void replaceRoot(Node* node);
 };
 
 #endif //MTE140_A3_BINARY_SEARCH_TREE_H

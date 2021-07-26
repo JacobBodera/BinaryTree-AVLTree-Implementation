@@ -54,14 +54,19 @@ bool AVLTree::singleLeftRotation(Node *parentNode, bool isLeftChild)
     Node* x = root->right;
     Node* treeX = x->left;
 
-    root->right = treeX;
     x->left = root;
+    root->right = treeX;
+
     if (parentNode != NULL) {
         if (isLeftChild)
             parentNode->left = x;
         else
             parentNode->right = x;
     }
+    else{
+        replaceRoot(x);
+    }
+
     return true;
 }
 
@@ -159,6 +164,7 @@ bool AVLTree::updateNodeBalance(std::stack<BinarySearchTree::Node*> *pathToNode,
         if (balanceFactor(current) < -1 && balanceFactor(current->right) < 0)
             singleLeftRotation(parent, isLeft);
         // SINGLE RIGHT
+        /*
         if (balanceFactor(current) > 1 && balanceFactor(current->left) > 0)
             singleRightRotation(parent, isLeft);
         // LEFT RIGHT
@@ -167,6 +173,7 @@ bool AVLTree::updateNodeBalance(std::stack<BinarySearchTree::Node*> *pathToNode,
         // RIGHT LEFT
         if (balanceFactor(current) < -1 && balanceFactor(current->right) > 0)
             rightLeftRotation(parent, isLeft);
+            */
     }
     delete pathToNode;
     return true;

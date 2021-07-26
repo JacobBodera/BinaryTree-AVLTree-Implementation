@@ -289,3 +289,7 @@ void BinarySearchTree::recursiveDelete(Node *node) {
         delete node;
     }
 }
+
+void BinarySearchTree::replaceRoot(Node* node) {
+    root_ = node;
+}
