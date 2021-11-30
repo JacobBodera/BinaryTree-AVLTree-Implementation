@@ -7,13 +7,14 @@ typedef BinarySearchTree::Node Node;
 
 using namespace std;
 
-BinarySearchTree::Node::Node(DataType newval) // good
+// Constructor to make a tree with a head node of val newval
+BinarySearchTree::Node::Node(DataType newval)
 {
     val = newval;
     left = NULL;
     right = NULL;
 }
-
+// returns the depth of a node in the tree. The head node is at a depth of zero
 int BinarySearchTree::getNodeDepth(Node* n) const
 {
     int count = 0;
@@ -33,23 +34,23 @@ int BinarySearchTree::getNodeDepth(Node* n) const
     return count;
 }
 
-BinarySearchTree::BinarySearchTree() // good
+BinarySearchTree::BinarySearchTree()
 {
     root_ = NULL;
     size_ = 0;
 }
-
+// Destructor to delete all nodes in a tree
 BinarySearchTree::~BinarySearchTree()
 {
     recursiveDelete(root_);
 }
-
-unsigned int BinarySearchTree::size() const // good
+// returns the number of nodes in a tree
+unsigned int BinarySearchTree::size() const
 {
     return size_;
 }
-
-DataType BinarySearchTree::max() const // good
+// returns the maximum value in a tree
+DataType BinarySearchTree::max() const
 {
     Node* current = root_;
     DataType max = 0;
@@ -61,7 +62,7 @@ DataType BinarySearchTree::max() const // good
     }
     return max;
 }
-
+// returns the minimum value in a tree
 DataType BinarySearchTree::min() const // good
 {
     Node* current = root_;
@@ -74,7 +75,7 @@ DataType BinarySearchTree::min() const // good
     }
     return min;
 }
-
+// returns the maximum depth
 unsigned int BinarySearchTree::depth() const
 {
     if (root_->left == NULL && root_->right == NULL)
@@ -114,7 +115,7 @@ void BinarySearchTree::print(Node* node) const
     if (node->right != NULL)
         print(node->right);
 }
-
+// returns whether or not a value exists in the tree
 bool BinarySearchTree::exists(DataType val) const
 {
     if (root_ == NULL)
@@ -132,19 +133,20 @@ bool BinarySearchTree::exists(DataType val) const
     }
     return false;
 }
-
-Node* BinarySearchTree::getRootNode() // good
+// returns the root node of the tree
+Node* BinarySearchTree::getRootNode()
 {
     return root_;
 }
-
-Node** BinarySearchTree::getRootNodeAddress() // good
+// returns the memory adress of the root node
+Node** BinarySearchTree::getRootNodeAddress()
 {
     return &root_;
 }
-
+// inserts a value into the tree
 bool BinarySearchTree::insert(DataType val)
 {
+    // checks to see if the tree is empty, if it is, it makes the root equal to val
     if (root_ == NULL) {
         Node* newNode = new Node(val);
         root_ = newNode;
@@ -156,20 +158,25 @@ bool BinarySearchTree::insert(DataType val)
     Node* parent = root_;
     bool isLeft = true;
 
+    // traverses through the tree to determine where to put the new value
     while (current) {
+        // if the value already exists in the tree, return false
         if (val == current->val)
             return false;
+        // if val is less than the current node, traverses to left
         else if (val < current->val) {
             parent = current;
             current = current->left;
             isLeft = true;
         }
+        // if val is greater than the current node, traverses to right
         else {
             parent = current;
             current = current->right;
             isLeft = false;
         }
     }
+    // adds the new value by checking whether it is the left or right child of its parent
     Node* newNode = new Node(val);
     if (isLeft)
         parent->left = newNode;
@@ -199,7 +206,7 @@ Node* findPredecessor(Node* ptr) {
     pred->right = ptr->right;
     return pred;
 }
-
+// removes a value from the tree
 bool BinarySearchTree::remove(DataType val)
 {
     Node* current = root_;
@@ -279,7 +286,7 @@ bool BinarySearchTree::remove(DataType val)
     --size_;
     return true;
 }
-
+// recursively deletes the tree
 void BinarySearchTree::recursiveDelete(Node *node) {
     if (node != NULL) {
         if (node->left != NULL)
@@ -289,7 +296,7 @@ void BinarySearchTree::recursiveDelete(Node *node) {
         delete node;
     }
 }
-
+// replaces the root node with a new node
 void BinarySearchTree::replaceRoot(Node* node) {
     root_ = node;
 }

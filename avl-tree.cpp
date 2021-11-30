@@ -30,15 +30,15 @@ int AVLTree::depthBelow(Node *n)
     else
         return rightSub + 1;
 }
-
-int AVLTree::balanceFactor(Node *node) { // good
+// returns the balance factor of a node
+int AVLTree::balanceFactor(Node *node) {
 
     if (node == NULL)
         return 0;
 
     return AVLTree::depthBelow(node->left) - AVLTree::depthBelow(node->right);
 }
-
+// creates a single left rotation at a node to balance the tree
 bool AVLTree::singleLeftRotation(Node *parentNode, bool isLeftChild)
 {
     Node* root;
@@ -46,10 +46,10 @@ bool AVLTree::singleLeftRotation(Node *parentNode, bool isLeftChild)
     if (parentNode == NULL)
         root = getRootNode();
     else
-        if (isLeftChild)
-             root = parentNode->left;
-        else
-            root = parentNode->right;
+    if (isLeftChild)
+        root = parentNode->left;
+    else
+        root = parentNode->right;
 
     Node* x = root->right;
     Node* treeX = x->left;
@@ -69,7 +69,7 @@ bool AVLTree::singleLeftRotation(Node *parentNode, bool isLeftChild)
 
     return true;
 }
-
+// creates a single right rotation at a node to balance the tree
 bool AVLTree::singleRightRotation(Node *parentNode, bool isLeftChild)
 {
     Node* root;
@@ -100,7 +100,7 @@ bool AVLTree::singleRightRotation(Node *parentNode, bool isLeftChild)
 
     return true;
 }
-
+// creates a left right rotation at a node to balance the tree
 bool AVLTree::leftRightRotation(Node *parentNode, bool isLeftChild)
 {
     Node* root;
@@ -135,7 +135,7 @@ bool AVLTree::leftRightRotation(Node *parentNode, bool isLeftChild)
 
     return true;
 }
-
+// creates a right left rotation at a node to balance the tree
 bool AVLTree::rightLeftRotation(Node *parentNode, bool isLeftChild)
 {
     Node* root;
@@ -170,7 +170,7 @@ bool AVLTree::rightLeftRotation(Node *parentNode, bool isLeftChild)
 
     return true;
 }
-
+// outputs a stack with all nodes in the path from the root to the node with val
 std::stack<BinarySearchTree::Node*> *AVLTree::pathToNodeStack(DataType val)
 {
     stack<Node*> *stk = new stack<Node*> ;
@@ -190,12 +190,12 @@ std::stack<BinarySearchTree::Node*> *AVLTree::pathToNodeStack(DataType val)
     return stk;
 }
 
-
+// function run after each insert/remove. Check balance factor and parent to determine which rotation to perform, if any
 bool AVLTree::updateNodeBalance(std::stack<BinarySearchTree::Node*> *pathToNode, DataType val)
 {
     bool isLeft;
     Node* parent;
-
+    // uses the pathToNode to determine if the node is the left or right child of its parent
     while (pathToNode->size() != 0) {
         Node* current = pathToNode->top();
         pathToNode->pop();
